@@ -1,0 +1,47 @@
+version: '3.7'
+services:
+  db:
+    image: mariadb:latest
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    networks:
+      - pirate-wp-network
+    environment:
+      MYSQL_ROOT_PASSWORD: example_root_password
+      MYSQL_DATABASE: wordpress_db
+      MYSQL_USER: wordpress_user
+      MYSQL_PASSWORD: example_password
+
+  wordpress:
+    depends_on:
+      - db
+    build:
+      context: ./
+    ports:
+      - "8000:80"
+    restart: always
+    networks:
+      - pirate-wp-network
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpress_user
+      WORDPRESS_DB_PASSWORD: example_password
+      WORDPRESS_DB_NAME: wordpress_db
+    volumes:
+      - ./content-data:/var/www/html/wordpress/wp-content
+      - ./admin-data:/var/www/html/wordpress/wp-admin
+      - ./plugin-data:/var/www/html/wordpress/wp-plugins
+      - ./config-data:/var/www/html/wordpress/wp-config
+
+volumes:
+  content-data:
+  admin-data:
+  plugin-data:
+  config-data:
+  db_data:
+
+networks:
+  pirate-wp-network:
